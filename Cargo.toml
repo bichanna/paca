@@ -2,6 +2,10 @@
 name = "paca"
 version = "0.0.0"
 edition = "2021"
+license = "MIT"
+authors = ["Nobuharu Shimazu <nobu.bichanna@gmail.com>"]
+description = "An experimental nibbler"
+readme = "README.md"
 
 [[bin]]
 name = "paca"

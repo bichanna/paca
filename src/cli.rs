@@ -48,7 +48,7 @@ enum SourceType {
 
 /// The argument parser for the CLI.
 #[derive(Parser, Debug)]
-#[clap(author, version, max_term_width=90, about = "Paca")]
+#[clap(author, version, max_term_width = 90, about = "Paca - an experimental nibbler")]
 struct CliArgs {
     /// The input file to the compiler.
     #[clap(value_parser)]
