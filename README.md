@@ -5,6 +5,8 @@
   </p>
 </div>
 
+Nothing is implemented yet, but here are some examples.
+
 ```rust
 type option<T> = either<T, none>;
 ```
