@@ -98,6 +98,10 @@ impl methods for HashMap<K: Hashable, V> {
         };
     }
     
+    def length(self) -> int {
+        return self.length;
+    }
+    
     def get(self, key: K) -> option<V> {
         let result: option<V> = left(none);
         array->for_each(self.entries) {(quit: \() -> void, entry: Entry) -> 
@@ -123,6 +127,7 @@ impl methods for HashMap<K: Hashable, V> {
         }
         let new_entry = Entry->init(key, val);
         array->append(self.entries, new_entry);
+        self.length += 1;
     }
     
     // other methods...
