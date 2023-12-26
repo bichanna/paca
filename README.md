@@ -82,13 +82,16 @@ impl methods for Entry<K: Hashable, V> {
 
 impl From<(K: Hashable, V)> for Entry {
     def from(value: (K: Hashable, V)) -> Self {
-        return Self->init(first(value), second(value));
+        return Self->init(
+            first(value),
+            second(value)
+        );
     }
 }
 
 impl methods for HashMap<K: Hashable, V> {
     def init(*init_raw_entries: [(K, V)]) -> Self {
-        let entries = array->map(init_raw_entries) {(raw_entry: (K, V)) ->
+        let entries = array->map(init_raw_entries) {(raw_entry) ->
             return Entryfrom(raw)
         };
         let length = array->length(entries);
@@ -103,7 +106,7 @@ impl methods for HashMap<K: Hashable, V> {
     }
     
     def get(self, key: K) -> option<V> {
-        let result: option<V> = left(none);
+        let result: option<V> = right(none);
         array->for_each(self.entries) {(quit, entry) -> 
             if entry->key->hash() == key->hash() {
                 result = left(entry->val);
