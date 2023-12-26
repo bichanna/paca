@@ -12,7 +12,7 @@ type option<T> = either<T, none>;
 ```
 
 ```rust
-import std/collections/array;
+import std.collections.array;
 
 def main() -> none {
     let names: [string] = array->init<string>("Nobu", "June");
@@ -39,8 +39,8 @@ def main() -> none {
 ```
 
 ```rust
-import std/fs->read_file;
-import std/io->Error;
+import std.fs->read_file;
+import std.io->Error;
 
 def main() -> none {
     let file_content: either<string, Error> = read_file("./whatever.txt");
@@ -53,11 +53,11 @@ def main() -> none {
 ```
 
 ```rust
-import std/hash->Hashable;
-import std/cmp->Equal;
-import std/convert->From;
-import std/collections/tuple->first, second;
-import std/collections/array;
+import std.hash->Hashable;
+import std.cmp->Equal;
+import std.convert->From;
+import std.collections.tuple->first, second;
+import std.collections.array;
 
 export HashMap;
 
