@@ -14,7 +14,7 @@ type option<T> = either<T, none>;
 ```rust
 import std/collections/array;
 
-def main() -> void {
+def main() -> none {
     let names: [string] = array->init<string>("Nobu", "June");
     array->append(names, "Shivam", "Arya", "Brogan", "Erin");
     let popped: option<string> = array->pop(names);
@@ -27,7 +27,7 @@ def main() -> void {
 ```
 
 ```rust
-def main() -> void {
+def main() -> none {
     let a: option<int> = left(123);
     let b = unwrapl(a); // `b: int = 123`
     
@@ -39,10 +39,10 @@ def main() -> void {
 ```
 
 ```rust
-import std/fs -> read_file;
-import std/io -> Error;
+import std/fs->read_file;
+import std/io->Error;
 
-def main() -> void {
+def main() -> none {
     let file_content: either<string, Error> = read_file("./whatever.txt");
     if has_left(file_content) {
         println(unwrapl(file_content));
@@ -53,13 +53,13 @@ def main() -> void {
 ```
 
 ```rust
-import std/hash -> Hashable;
-import std/cmp -> Equal;
-import std/convert -> From;
-import std/collections/tuple -> first, second;
+import std/hash->Hashable;
+import std/cmp->Equal;
+import std/convert->From;
+import std/collections/tuple->first, second;
 import std/collections/array;
 
-export Map;
+export HashMap;
 
 struct Entry<K: Hashable, V> {
     $key: K,
@@ -104,7 +104,7 @@ impl methods for HashMap<K: Hashable, V> {
     
     def get(self, key: K) -> option<V> {
         let result: option<V> = left(none);
-        array->for_each(self.entries) {(quit: \() -> void, entry: Entry) -> 
+        array->for_each(self.entries) {(quit, entry) -> 
             if entry->key->hash() == key->hash() {
                 result = left(entry->val);
                 quit();
@@ -113,9 +113,9 @@ impl methods for HashMap<K: Hashable, V> {
         return result;
     }
     
-    def put(self, key: K, val: V) -> void {
+    def put(self, key: K, val: V) -> none {
         let exit = false;
-        array->for_each(self.entries) {(quit: \() -> void, entry: Entry) ->
+        array->for_each(self.entries) {(quit, entry) ->
             if entry->key->hash() == key->hash() {
                 entry->val = val;
                 exit = true;

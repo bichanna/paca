@@ -15,7 +15,6 @@ path = "src/cli.rs"
 pest = { version = "2.7.5", features = ["pretty-print"] }
 pest_derive = "2.7.5"
 env_logger = "0.10"
-no-comment = "0.0.3"
 log = { version = "0.4", features = ["release_max_level_info"] }
 clap = { version = "4", features = ["derive", "cargo"] }
 maplit = "1"
