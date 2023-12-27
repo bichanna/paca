@@ -8,6 +8,20 @@
 Nothing is implemented yet, but here are some examples.
 
 ```rust
+export Either, Option;
+
+enum Either<L, R> {
+    Left(L),
+    Right(R)
+}
+
+enum Option<T> {
+    Some(T),
+    None,
+}
+```
+
+```rust
 import std::collections::Array;
 
 def main() void {
