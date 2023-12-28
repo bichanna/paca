@@ -12,8 +12,6 @@ name = "paca"
 path = "src/cli.rs"
 
 [dependencies]
-pest = { version = "2.7.5", features = ["pretty-print"] }
-pest_derive = "2.7.5"
 env_logger = "0.10"
 log = { version = "0.4", features = ["release_max_level_info"] }
 clap = { version = "4", features = ["derive", "cargo"] }

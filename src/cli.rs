@@ -1,8 +1,11 @@
+mod parse;
+mod util;
+
+use clap::*;
+use log::{error, LevelFilter};
 use std::fmt;
 use std::fmt::Formatter;
 use std::fs::read_to_string;
-use clap::*;
-use log::{LevelFilter, error};
 
 /// The log level options
 #[derive(Default, ValueEnum, Clone, Debug, PartialEq)]
@@ -31,7 +34,7 @@ enum TargetType {
     Pir,
     /// Compile to C code.
     #[default]
-    C
+    C,
 }
 
 /// The source language options to compile.
@@ -48,7 +51,12 @@ enum SourceType {
 
 /// The argument parser for the CLI.
 #[derive(Parser, Debug)]
-#[clap(author, version, max_term_width = 90, about = "Paca - an experimental nibbler")]
+#[clap(
+    author,
+    version,
+    max_term_width = 90,
+    about = "Paca - an experimental nibbler"
+)]
 struct CliArgs {
     /// The input file to the compiler.
     #[clap(value_parser)]
@@ -85,12 +93,12 @@ enum Error {
 
 impl fmt::Debug for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-       match self {
-           Error::IO(e) => write!(f, "IO error: {:?}", e),
-           Error::Parse(e) => write!(f, "Parse error: {:?}", e),
-           Error::Pir(e) => write!(f, "IR error: {:?}", e),
-           Error::Pasm(e) => write!(f, "Assembly error: {:?}", e)
-       } 
+        match self {
+            Error::IO(e) => write!(f, "IO error: {:?}", e),
+            Error::Parse(e) => write!(f, "Parse error: {:?}", e),
+            Error::Pir(e) => write!(f, "IR error: {:?}", e),
+            Error::Pasm(e) => write!(f, "Assembly error: {:?}", e),
+        }
     }
 }
 fn main() {
@@ -115,6 +123,6 @@ fn main() {
         Ok(file_content) => {
             todo!()
         }
-        Err(e) => error!("Error reading file: {e:?}")
+        Err(e) => error!("Error reading file: {e:?}"),
     }
 }

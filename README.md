@@ -72,7 +72,7 @@ struct Entry<K: Hashable, V> {
 }
 
 struct HashMap<K: Hashable, V> {
-    entries: []Option<Entry<K, V>>,
+    entries: []Entry<K, V>,
     length: int,
 }
 
