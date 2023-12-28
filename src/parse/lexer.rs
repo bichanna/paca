@@ -276,7 +276,7 @@ impl<'src> Tokenize for Lexer<'src> {
 
                         let mut hex = String::new();
 
-                        if self.is_end() || !self.force_peek().is_ascii_hexdigit() {
+                        if self.is_end() || !self.peek().unwrap_or(&'\0').is_ascii_hexdigit() {
                             return Err(LexError::InvalidHexadecimalNumber(self.generate_loc()));
                         }
 
@@ -344,33 +344,38 @@ impl<'src> Tokenize for Lexer<'src> {
                 '[' => self.push(TokenKind::LeftBracket),
                 ']' => self.push(TokenKind::RightBracket),
                 '\\' => self.push(TokenKind::BackSlash),
-                '+' => match self.force_peek() {
-                    '=' => self.push_and_consume(TokenKind::PlusEq),
-                    _ => self.push(TokenKind::Plus),
+                '+' => match self.peek() {
+                    Some(&'=') => self.push_and_consume(TokenKind::PlusEq),
+                    Some(_) => self.push(TokenKind::Plus),
+                    None => {}
                 },
-                '-' => match self.force_peek() {
-                    '=' => self.push_and_consume(TokenKind::MinusEq),
-                    '>' => self.push_and_consume(TokenKind::MinusGreaterThan),
-                    _ => self.push(TokenKind::Minus),
+                '-' => match self.peek() {
+                    Some(&'=') => self.push_and_consume(TokenKind::MinusEq),
+                    Some(&'>') => self.push_and_consume(TokenKind::MinusGreaterThan),
+                    Some(_) => self.push(TokenKind::Minus),
+                    None => {}
                 },
-                '*' => match self.force_peek() {
-                    '=' => self.push_and_consume(TokenKind::MulEq),
-                    _ => self.push(TokenKind::Mul),
+                '*' => match self.peek() {
+                    Some(&'=') => self.push_and_consume(TokenKind::MulEq),
+                    Some(_) => self.push(TokenKind::Mul),
+                    None => {}
                 },
-                '/' => match self.force_peek() {
-                    '=' => self.push_and_consume(TokenKind::DivEq),
-                    '/' => {
+                '/' => match self.peek() {
+                    Some(&'=') => self.push_and_consume(TokenKind::DivEq),
+                    Some(&'/') => {
                         // Comment!
                         while self.c != '\n' && !self.is_end() {
                             self.next();
                         }
                         self.next();
                     }
-                    _ => self.push(TokenKind::Div),
+                    Some(_) => self.push(TokenKind::Div),
+                    _ => {}
                 },
-                '%' => match self.force_peek() {
-                    '=' => self.push_and_consume(TokenKind::RemEq),
-                    _ => self.push(TokenKind::Rem),
+                '%' => match self.peek() {
+                    Some(&'=') => self.push_and_consume(TokenKind::RemEq),
+                    Some(_) => self.push(TokenKind::Rem),
+                    None => {}
                 },
                 ',' => self.push(TokenKind::Comma),
                 '.' => self.push(TokenKind::Dot),
@@ -400,26 +405,31 @@ impl<'src> Tokenize for Lexer<'src> {
                         });
                     }
                 }
-                '>' => match self.force_peek() {
-                    '=' => self.push_and_consume(TokenKind::GreaterThanOrEq),
-                    _ => self.push(TokenKind::GreaterThan),
+                '>' => match self.peek() {
+                    Some(&'=') => self.push_and_consume(TokenKind::GreaterThanOrEq),
+                    Some(_) => self.push(TokenKind::GreaterThan),
+                    None => {}
                 },
-                '<' => match self.force_peek() {
-                    '=' => self.push_and_consume(TokenKind::LessThanOrEq),
-                    _ => self.push(TokenKind::LessThan),
+                '<' => match self.peek() {
+                    Some(&'=') => self.push_and_consume(TokenKind::LessThanOrEq),
+                    Some(_) => self.push(TokenKind::LessThan),
+                    None => {}
                 },
-                '!' => match self.force_peek() {
-                    '=' => self.push_and_consume(TokenKind::BangEq),
-                    _ => self.push(TokenKind::Bang),
+                '!' => match self.peek() {
+                    Some(&'=') => self.push_and_consume(TokenKind::BangEq),
+                    Some(_) => self.push(TokenKind::Bang),
+                    None => {}
                 },
-                '=' => match self.force_peek() {
-                    '=' => self.push_and_consume(TokenKind::DoubleEq),
-                    '>' => self.push_and_consume(TokenKind::EqGreaterThan),
-                    _ => self.push(TokenKind::Eq),
+                '=' => match self.peek() {
+                    Some(&'=') => self.push_and_consume(TokenKind::DoubleEq),
+                    Some(&'>') => self.push_and_consume(TokenKind::EqGreaterThan),
+                    Some(_) => self.push(TokenKind::Eq),
+                    None => {}
                 },
-                ':' => match self.force_peek() {
-                    ':' => self.push_and_consume(TokenKind::DoubleColon),
-                    _ => self.push(TokenKind::Colon),
+                ':' => match self.peek() {
+                    Some(&':') => self.push_and_consume(TokenKind::DoubleColon),
+                    Some(_) => self.push(TokenKind::Colon),
+                    None => {}
                 },
                 ';' => self.push(TokenKind::SemiColon),
                 _ => return Err(LexError::InvalidCharacter(self.generate_loc())),
@@ -466,18 +476,6 @@ impl<'src> Lexer<'src> {
     /// Return a reference to the next character without consuming it.
     fn peek(&mut self) -> Option<&char> {
         self.source.peek()
-    }
-
-    /// Forcibly unwrap the next character using `peek` method.
-    /// May panic, so use it with care!
-    fn force_peek(&mut self) -> char {
-        if let Some(c) = self.peek() {
-            *c
-        } else {
-            // If there's no next character, this will just panic for now although
-            // this is a very bad practice.
-            panic!();
-        }
     }
 
     /// Create a new `Token` and then append it to `tokens` vector.
