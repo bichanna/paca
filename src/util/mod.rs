@@ -20,32 +20,32 @@ macro_rules! weird_while {
 
 macro_rules! escape_char {
     ($self:expr, $str:expr) => {
-        match $self.force_peek() {
-            '\\' => {
+        match $self.peek() {
+            Some(&'\\') => {
                 $str.push($self.c);
                 $self.next();
             }
-            '0' => {
+            Some(&'0') => {
                 $str.push('\0');
                 $self.next();
             }
-            '"' => {
+            Some(&'"') => {
                 $str.push('"');
                 $self.next();
             }
-            'n' => {
+            Some(&'n') => {
                 $str.push('\n');
                 $self.next();
             }
-            'r' => {
+            Some(&'r') => {
                 $str.push('\r');
                 $self.next();
             }
-            't' => {
+            Some(&'t') => {
                 $str.push('\t');
                 $self.next();
             }
-            _ => {}
+            Some(_) | None => {}
         }
     };
 }
