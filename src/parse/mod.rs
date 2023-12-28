@@ -89,17 +89,33 @@ impl SourceCodeLocation {
     /// Generate a string with two lines: the line at which the error occurred and a line
     /// with ^'s, pointing at precise location of the error.
     pub fn line_in_source_code(&self, source_code: &String) -> String {
+        let SourceCodeLocation {
+            line,
+            column,
+            offset,
+            length,
+            filename,
+        } = self.clone();
+
+        let loc = format!(
+            "{}:{}:{}:{}",
+            filename.unwrap_or("unknown".to_string()),
+            line,
+            column,
+            offset
+        );
         let mut lines = source_code.lines();
-        let mut line = lines.nth(self.line - 1).unwrap().to_string();
+        let mut line = lines.nth(line - 1).unwrap().to_string();
 
         let mut hats = String::new();
-        for _ in 0..self.column {
+        for _ in 0..column {
             hats.push(' ');
         }
-        for _ in 0..self.length {
+        for _ in 0..length {
             hats.push('^');
         }
 
+        line = format!("Error at {}", loc) + &line;
         line = line + "\n" + &hats;
 
         line
