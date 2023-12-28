@@ -2,55 +2,65 @@ use crate::util::GenerateErrorMessage;
 
 mod lexer;
 
+/// Struct for lexer errors.
+#[derive(Clone, Debug)]
+pub struct LexError {
+    r#type: LexErrorType,
+    loc: SourceCodeLocation,
+}
+
+impl LexError {
+    pub fn new(t: LexErrorType, loc: SourceCodeLocation) -> Self {
+        Self { r#type: t, loc }
+    }
+}
+
 /// Types of errors tokenizing the source code.
 #[derive(Clone, Debug)]
-pub enum LexError {
+pub enum LexErrorType {
     /// Encountered an invalid character.
-    InvalidCharacter(SourceCodeLocation),
+    InvalidCharacter,
     /// Encountered an invalid character literal.
-    InvalidCharacterLiteral(SourceCodeLocation),
+    InvalidCharacterLiteral,
     /// Encountered an invalid hexadecimal number literal.
-    InvalidHexadecimalNumber(SourceCodeLocation),
+    InvalidHexadecimalNumber,
     /// Encountered an invalid floating point number literal.
-    InvalidFloatingPointNumber(SourceCodeLocation),
+    InvalidFloatingPointNumber,
     /// Encountered an invalid whole number.
-    InvalidInteger(SourceCodeLocation),
+    InvalidInteger,
     /// Encountered an invalid string literal.
-    InvalidString(SourceCodeLocation),
+    InvalidString,
     /// Encountered an invalid token.
-    InvalidToken {
-        /// Expected tokens.
-        expected: Vec<&'static str>,
-        loc: SourceCodeLocation,
-    },
+    InvalidToken(Vec<&'static str>),
 }
 
 impl GenerateErrorMessage for LexError {
     /// Generate a properly formatted error message
     fn generate_error_message(self, source_code: &String) -> String {
         let parse_err = "\nParse Error: ";
-        match self {
-            Self::InvalidCharacter(loc) => {
+        let loc = self.loc;
+        match self.r#type {
+            LexErrorType::InvalidCharacter => {
                 loc.line_in_source_code(source_code) + parse_err + "Invalid character."
             }
-            Self::InvalidCharacterLiteral(loc) => {
+            LexErrorType::InvalidCharacterLiteral => {
                 loc.line_in_source_code(source_code) + parse_err + "Invalid character literal."
             }
-            Self::InvalidHexadecimalNumber(loc) => {
+            LexErrorType::InvalidHexadecimalNumber => {
                 loc.line_in_source_code(source_code)
                     + parse_err
                     + "Invalid hexadecimal number literal."
             }
-            Self::InvalidFloatingPointNumber(loc) => {
+            LexErrorType::InvalidFloatingPointNumber => {
                 loc.line_in_source_code(source_code) + parse_err + "Invalid float literal."
             }
-            Self::InvalidInteger(loc) => {
+            LexErrorType::InvalidInteger => {
                 loc.line_in_source_code(source_code) + parse_err + "Invalid integer literal."
             }
-            Self::InvalidString(loc) => {
+            LexErrorType::InvalidString => {
                 loc.line_in_source_code(source_code) + parse_err + "Invalid string literal."
             }
-            Self::InvalidToken { expected, loc } => {
+            LexErrorType::InvalidToken(expected) => {
                 loc.line_in_source_code(source_code)
                     + parse_err
                     + "Expected "
