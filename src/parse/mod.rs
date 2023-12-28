@@ -108,14 +108,14 @@ impl SourceCodeLocation {
         let mut line = lines.nth(line - 1).unwrap().to_string();
 
         let mut hats = String::new();
-        for _ in 0..column {
+        for _ in 1..column {
             hats.push(' ');
         }
         for _ in 0..length {
             hats.push('^');
         }
 
-        line = format!("Error at {}", loc) + &line;
+        line = format!("Error at {}", loc) + "\n\n" + &line;
         line = line + "\n" + &hats;
 
         line
