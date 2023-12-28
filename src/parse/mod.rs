@@ -1,3 +1,5 @@
+use crate::util::GenerateErrorMessage;
+
 mod lexer;
 
 /// Types of errors tokenizing the source code.
@@ -23,7 +25,7 @@ pub enum LexError {
     },
 }
 
-impl LexError {
+impl GenerateErrorMessage for LexError {
     /// Generate a properly formatted error message
     fn generate_error_message(self, source_code: &String) -> String {
         let parse_err = "\nParse Error: ";

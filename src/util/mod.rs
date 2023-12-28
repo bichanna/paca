@@ -18,6 +18,7 @@ macro_rules! weird_while {
     };
 }
 
+/// Boilerplate for escaping characters.
 macro_rules! escape_char {
     ($self:expr, $str:expr) => {
         match $self.peek() {
@@ -51,3 +52,8 @@ macro_rules! escape_char {
 }
 
 pub(crate) use {escape_char, weird_while};
+
+/// This trait is for error enums and structs.
+pub trait GenerateErrorMessage: Clone {
+    fn generate_error_message(self, source_code: &String) -> String;
+}
