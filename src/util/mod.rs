@@ -18,4 +18,36 @@ macro_rules! weird_while {
     };
 }
 
-pub(crate) use weird_while;
+macro_rules! escape_char {
+    ($self:expr, $str:expr) => {
+        match $self.force_peek() {
+            '\\' => {
+                $str.push($self.c);
+                $self.next();
+            }
+            '0' => {
+                $str.push('\0');
+                $self.next();
+            }
+            '"' => {
+                $str.push('"');
+                $self.next();
+            }
+            'n' => {
+                $str.push('\n');
+                $self.next();
+            }
+            'r' => {
+                $str.push('\r');
+                $self.next();
+            }
+            't' => {
+                $str.push('\t');
+                $self.next();
+            }
+            _ => {}
+        }
+    };
+}
+
+pub(crate) use {escape_char, weird_while};

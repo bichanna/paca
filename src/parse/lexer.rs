@@ -1,6 +1,5 @@
 use crate::parse::{LexError, SourceCodeLocation};
-use crate::util::weird_while;
-use snailquote::unescape;
+use crate::util::{escape_char, weird_while};
 use std::iter::Peekable;
 use std::str::Chars;
 
@@ -11,7 +10,7 @@ pub trait Tokenize {
 }
 
 /// Types of tokens.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum TokenKind {
     /// Identifier
     Ident(String),
@@ -96,7 +95,7 @@ pub enum TokenKind {
 }
 
 /// All keyword types
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Keyword {
     If,
     Else,
@@ -153,7 +152,7 @@ impl TryInto<Keyword> for String {
 }
 
 /// A struct representing each token in the source code.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Token {
     /// Type of the token.
     pub kind: TokenKind,
@@ -184,6 +183,7 @@ pub struct Lexer<'src> {
     c: char,
 
     line: usize,
+    column_c: usize,
     column: usize,
     offset: usize,
     length: usize,
@@ -193,6 +193,7 @@ impl<'src> Tokenize for Lexer<'src> {
     type TokenType = Token;
 
     fn tokenize(mut self) -> Result<Vec<Self::TokenType>, LexError> {
+        self.next();
         while !self.is_end() {
             match self.c {
                 // An identifier or keyword
@@ -228,17 +229,18 @@ impl<'src> Tokenize for Lexer<'src> {
                     let mut str = String::new();
 
                     weird_while! {
-                        str.push(self.c),
-                        !self.is_end() && self.c.is_ascii_alphabetic() && self.c != '"',
+                        {
+                            if self.c == '\\' {
+                                escape_char!(self, str);
+                            } else {
+                                str.push(self.c);
+                            }
+                        },
+                        !self.is_end() && self.c != '"',
                         self.next()
                     }
 
-                    // Try to unescape the string value.
-                    if let Ok(str) = unescape(&str) {
-                        self.push(TokenKind::Str(str));
-                    } else {
-                        return Err(LexError::InvalidString(self.generate_loc()));
-                    }
+                    self.push(TokenKind::Str(str));
                 }
 
                 // A character
@@ -248,17 +250,21 @@ impl<'src> Tokenize for Lexer<'src> {
                     let mut char = String::new();
 
                     weird_while! {
-                        char.push(self.c),
-                        !self.is_end() && self.c.is_ascii_alphabetic() && self.c != '\'',
+                        {
+                            if self.c == '\\' {
+                                escape_char!(self, char);
+                            } else {
+                                char.push(self.c);
+                            }
+                        },
+                        !self.is_end() && self.c != '\'',
                         self.next()
                     }
 
-                    // Try to unescape the character.
-                    if let Ok(char) = unescape(&char) {
-                        self.push(TokenKind::Char(char.chars().nth(0).unwrap()));
-                    } else {
+                    if char.len() != 1 {
                         return Err(LexError::InvalidCharacterLiteral(self.generate_loc()));
                     }
+                    self.push(TokenKind::Char(char.chars().nth(0).unwrap()));
                 }
 
                 // An integer, a float, or a hexadecimal number.
@@ -303,7 +309,7 @@ impl<'src> Tokenize for Lexer<'src> {
                                     }
                                 }
                             },
-                            !self.is_end() && self.c.is_ascii_digit(),
+                            !self.is_end() && (self.c.is_ascii_digit() || self.c == '.'),
                             self.next()
                         }
 
@@ -328,6 +334,7 @@ impl<'src> Tokenize for Lexer<'src> {
                 '\n' => {
                     self.line += 1;
                     self.column = 1;
+                    self.column_c = 1;
                 }
                 n if n.is_whitespace() => {}
                 '(' => self.push(TokenKind::LeftParen),
@@ -417,6 +424,7 @@ impl<'src> Tokenize for Lexer<'src> {
                 ';' => self.push(TokenKind::SemiColon),
                 _ => return Err(LexError::InvalidCharacter(self.generate_loc())),
             }
+            self.next();
         }
         Ok(self.tokens)
     }
@@ -432,6 +440,7 @@ impl<'src> Lexer<'src> {
             c: '\0',
             line: 1,
             column: 1,
+            column_c: 1,
             offset: 0,
             length: 0,
         }
@@ -450,6 +459,7 @@ impl<'src> Lexer<'src> {
         let n = self.source.next();
         self.c = n.unwrap_or('\0');
         self.length += 1;
+        self.column_c += 1;
         return n;
     }
 
@@ -475,6 +485,7 @@ impl<'src> Lexer<'src> {
         let loc = self.generate_loc();
         let token = Token::new(kind, loc);
         self.length = 0;
+        self.column = self.column_c;
         self.tokens.push(token);
     }
 
@@ -490,8 +501,66 @@ impl<'src> Lexer<'src> {
             line: self.line,
             column: self.column,
             offset: self.offset,
-            length: self.length,
+            length: self.length - 1,
             filename: self.filename.clone(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn keywords_and_types() {
+        let src = "if else match def let str int float struct enum impl for while self Self break return continue methods import export".to_string();
+        let lexer = Lexer::new(None, &src);
+        let tokens = lexer.tokenize();
+
+        assert!(matches!(tokens, Ok(_)));
+
+        let tokens = tokens.unwrap();
+        assert_eq!(tokens.len(), 21);
+
+        assert_eq!(tokens[0].kind, TokenKind::Keyword(Keyword::If));
+        assert_eq!(tokens[1].kind, TokenKind::Keyword(Keyword::Else));
+        assert_eq!(tokens[2].kind, TokenKind::Keyword(Keyword::Match));
+        assert_eq!(tokens[3].kind, TokenKind::Keyword(Keyword::Def));
+        assert_eq!(tokens[4].kind, TokenKind::Keyword(Keyword::Let));
+        assert_eq!(tokens[5].kind, TokenKind::Keyword(Keyword::Str));
+        assert_eq!(tokens[6].kind, TokenKind::Keyword(Keyword::Int));
+        assert_eq!(tokens[7].kind, TokenKind::Keyword(Keyword::Float));
+        assert_eq!(tokens[8].kind, TokenKind::Keyword(Keyword::Struct));
+        assert_eq!(tokens[9].kind, TokenKind::Keyword(Keyword::Enum));
+        assert_eq!(tokens[10].kind, TokenKind::Keyword(Keyword::Impl));
+        assert_eq!(tokens[11].kind, TokenKind::Keyword(Keyword::For));
+        assert_eq!(tokens[12].kind, TokenKind::Keyword(Keyword::While));
+        assert_eq!(tokens[13].kind, TokenKind::Keyword(Keyword::LilSelf));
+        assert_eq!(tokens[14].kind, TokenKind::Keyword(Keyword::BigSelf));
+        assert_eq!(tokens[15].kind, TokenKind::Keyword(Keyword::Break));
+        assert_eq!(tokens[16].kind, TokenKind::Keyword(Keyword::Return));
+        assert_eq!(tokens[17].kind, TokenKind::Keyword(Keyword::Continue));
+        assert_eq!(tokens[18].kind, TokenKind::Keyword(Keyword::Methods));
+        assert_eq!(tokens[19].kind, TokenKind::Keyword(Keyword::Import));
+        assert_eq!(tokens[20].kind, TokenKind::Keyword(Keyword::Export));
+    }
+
+    #[test]
+    fn literals() {
+        let src = "123 1.23 0xabc \"Hello, world\" '\\n' identifier".to_string();
+        let lexer = Lexer::new(None, &src);
+        let tokens = lexer.tokenize();
+
+        assert!(matches!(tokens, Ok(_)));
+
+        let tokens = tokens.unwrap();
+        assert_eq!(tokens.len(), 6);
+
+        assert_eq!(tokens[0].kind, TokenKind::Int(123));
+        assert_eq!(tokens[1].kind, TokenKind::Float(1.23));
+        assert_eq!(tokens[2].kind, TokenKind::Int(2748));
+        assert_eq!(tokens[3].kind, TokenKind::Str("Hello, world".to_string()));
+        assert_eq!(tokens[4].kind, TokenKind::Char('\n'));
+        assert_eq!(tokens[5].kind, TokenKind::Ident("identifier".to_string()));
     }
 }
