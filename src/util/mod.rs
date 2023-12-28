@@ -53,7 +53,7 @@ macro_rules! escape_char {
 
 pub(crate) use {escape_char, weird_while};
 
-/// This trait is for error enums and structs.
+/// This trait is for error enums and structs to properly format error messages.
 pub trait GenerateErrorMessage: Clone {
     fn generate_error_message(self, source_code: &String) -> String;
 }

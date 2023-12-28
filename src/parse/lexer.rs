@@ -1,4 +1,4 @@
-use crate::parse::{LexError, SourceCodeLocation};
+use crate::parse::{LexError, LexErrorType, SourceCodeLocation};
 use crate::util::{escape_char, weird_while};
 use std::iter::Peekable;
 use std::str::Chars;
@@ -262,7 +262,10 @@ impl<'src> Tokenize for Lexer<'src> {
                     }
 
                     if char.len() != 1 {
-                        return Err(LexError::InvalidCharacterLiteral(self.generate_loc()));
+                        return Err(LexError::new(
+                            LexErrorType::InvalidCharacterLiteral,
+                            self.generate_loc(),
+                        ));
                     }
                     self.push(TokenKind::Char(char.chars().nth(0).unwrap()));
                 }
@@ -277,7 +280,10 @@ impl<'src> Tokenize for Lexer<'src> {
                         let mut hex = String::new();
 
                         if self.is_end() || !self.peek().unwrap_or(&'\0').is_ascii_hexdigit() {
-                            return Err(LexError::InvalidHexadecimalNumber(self.generate_loc()));
+                            return Err(LexError::new(
+                                LexErrorType::InvalidHexadecimalNumber,
+                                self.generate_loc(),
+                            ));
                         }
 
                         weird_while! {
@@ -289,7 +295,10 @@ impl<'src> Tokenize for Lexer<'src> {
                         if let Ok(hex) = i64::from_str_radix(&hex, 16) {
                             self.push(TokenKind::Int(hex));
                         } else {
-                            return Err(LexError::InvalidHexadecimalNumber(self.generate_loc()));
+                            return Err(LexError::new(
+                                LexErrorType::InvalidHexadecimalNumber,
+                                self.generate_loc(),
+                            ));
                         }
                     } else {
                         // An integer or a float.
@@ -301,7 +310,10 @@ impl<'src> Tokenize for Lexer<'src> {
                                 num.push(self.c);
                                 if self.peek() == Some(&'.') {
                                     if has_dot {
-                                        return Err(LexError::InvalidFloatingPointNumber(self.generate_loc()));
+                                        return Err(LexError::new(
+                                            LexErrorType::InvalidFloatingPointNumber,
+                                            self.generate_loc())
+                                        );
                                     } else {
                                         has_dot = true;
                                         num.push('.');
@@ -317,7 +329,8 @@ impl<'src> Tokenize for Lexer<'src> {
                             if let Ok(float) = str::parse::<f64>(&num) {
                                 self.push(TokenKind::Float(float));
                             } else {
-                                return Err(LexError::InvalidFloatingPointNumber(
+                                return Err(LexError::new(
+                                    LexErrorType::InvalidFloatingPointNumber,
                                     self.generate_loc(),
                                 ));
                             }
@@ -325,7 +338,10 @@ impl<'src> Tokenize for Lexer<'src> {
                             if let Ok(int) = str::parse::<i64>(&num) {
                                 self.push(TokenKind::Int(int));
                             } else {
-                                return Err(LexError::InvalidInteger(self.generate_loc()));
+                                return Err(LexError::new(
+                                    LexErrorType::InvalidInteger,
+                                    self.generate_loc(),
+                                ));
                             }
                         }
                     }
@@ -386,10 +402,10 @@ impl<'src> Tokenize for Lexer<'src> {
                     } {
                         self.push(TokenKind::DoubleAmp);
                     } else {
-                        return Err(LexError::InvalidToken {
-                            expected: vec!["||"],
-                            loc: self.generate_loc(),
-                        });
+                        return Err(LexError::new(
+                            LexErrorType::InvalidToken(vec!["||"]),
+                            self.generate_loc(),
+                        ));
                     }
                 }
                 '&' => {
@@ -399,10 +415,10 @@ impl<'src> Tokenize for Lexer<'src> {
                     } {
                         self.push(TokenKind::DoubleVertical);
                     } else {
-                        return Err(LexError::InvalidToken {
-                            expected: vec!["&&"],
-                            loc: self.generate_loc(),
-                        });
+                        return Err(LexError::new(
+                            LexErrorType::InvalidToken(vec!["&&"]),
+                            self.generate_loc(),
+                        ));
                     }
                 }
                 '>' => match self.peek() {
@@ -432,7 +448,12 @@ impl<'src> Tokenize for Lexer<'src> {
                     None => {}
                 },
                 ';' => self.push(TokenKind::SemiColon),
-                _ => return Err(LexError::InvalidCharacter(self.generate_loc())),
+                _ => {
+                    return Err(LexError::new(
+                        LexErrorType::InvalidCharacter,
+                        self.generate_loc(),
+                    ));
+                }
             }
             self.next();
         }
