@@ -118,6 +118,8 @@ pub enum Keyword {
     Methods,
     Import,
     Export,
+    True,
+    False,
 }
 
 impl TryInto<Keyword> for String {
@@ -146,6 +148,8 @@ impl TryInto<Keyword> for String {
             "methods" => Ok(Keyword::Methods),
             "import" => Ok(Keyword::Import),
             "export" => Ok(Keyword::Export),
+            "true" => Ok(Keyword::True),
+            "false" => Ok(Keyword::False),
             _ => Err(()),
         }
     }
@@ -532,14 +536,14 @@ mod tests {
 
     #[test]
     fn keywords_and_types() {
-        let src = "if else match def let str int float struct enum impl for while self Self break return continue methods import export".to_string();
+        let src = "if else match def let str int float struct enum impl for while self Self break return continue methods import export true false".to_string();
         let lexer = Lexer::new(None, &src);
         let tokens = lexer.tokenize();
 
         assert!(matches!(tokens, Ok(_)));
 
         let tokens = tokens.unwrap();
-        assert_eq!(tokens.len(), 21);
+        assert_eq!(tokens.len(), 23);
 
         assert_eq!(tokens[0].kind, TokenKind::Keyword(Keyword::If));
         assert_eq!(tokens[1].kind, TokenKind::Keyword(Keyword::Else));
@@ -562,6 +566,8 @@ mod tests {
         assert_eq!(tokens[18].kind, TokenKind::Keyword(Keyword::Methods));
         assert_eq!(tokens[19].kind, TokenKind::Keyword(Keyword::Import));
         assert_eq!(tokens[20].kind, TokenKind::Keyword(Keyword::Export));
+        assert_eq!(tokens[21].kind, TokenKind::Keyword(Keyword::True));
+        assert_eq!(tokens[22].kind, TokenKind::Keyword(Keyword::False));
     }
 
     #[test]
