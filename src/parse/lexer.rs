@@ -1,5 +1,6 @@
 use crate::parse::{LexError, LexErrorType, SourceCodeLocation};
 use crate::util::{escape_char, weird_while};
+use log::debug;
 use std::iter::Peekable;
 use std::str::Chars;
 
@@ -197,6 +198,8 @@ impl<'src> Tokenize for Lexer<'src> {
     type TokenType = Token;
 
     fn tokenize(mut self) -> Result<Vec<Self::TokenType>, LexError> {
+        debug!("Starting tokenizing the source code.");
+
         self.next();
         while !self.is_end() {
             match self.c {
