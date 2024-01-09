@@ -1,6 +1,6 @@
 use crate::parse::{LexError, LexErrorType, SourceCodeLocation};
 use crate::util::{escape_char, weird_while};
-use log::{debug, info};
+use log::debug;
 use std::iter::Peekable;
 use std::rc::Rc;
 use std::str::Chars;
