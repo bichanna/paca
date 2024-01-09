@@ -1,3 +1,5 @@
+use crate::parse::expr::expr::Expr;
+
 pub enum ConstExpr {
     Identifier(String),
     String(String),
@@ -5,4 +7,6 @@ pub enum ConstExpr {
     Integer(i64),
     Float(f64),
     Boolean(bool),
+    List(Vec<Expr>),
+    Tuple(Vec<Expr>),
 }
