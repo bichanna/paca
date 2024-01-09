@@ -1,5 +1,6 @@
 use crate::util::GenerateErrorMessage;
 
+mod expr;
 mod lexer;
 
 /// Struct for lexer errors.
