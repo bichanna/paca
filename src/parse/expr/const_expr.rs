@@ -1,5 +1,6 @@
 use crate::parse::expr::expr::Expr;
 
+#[derive(Clone, Debug)]
 pub enum ConstExpr {
     Identifier(String),
     String(String),
