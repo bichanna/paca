@@ -1,6 +1,7 @@
 use crate::parse::expr::const_expr::ConstExpr;
 use crate::parse::expr::stmt::Stmt;
-use crate::parse::expr::types::Type;
+use crate::parse::expr::types::TypeStruct;
+use crate::parse::SourceCodeLocation;
 
 /// All binary operations.
 #[derive(Clone, Copy, Debug)]
@@ -27,6 +28,17 @@ pub enum UnaryOp {
     NegNum,
 }
 
+#[derive(Clone, Debug)]
+pub struct ExprStruct {
+    loc: SourceCodeLocation,
+    expr: Expr,
+}
+
+impl Into<SourceCodeLocation> for ExprStruct {
+    fn into(self) -> SourceCodeLocation {
+        self.loc
+    }
+}
 /// All expression types.
 #[derive(Clone, Debug)]
 pub enum Expr {
@@ -49,7 +61,7 @@ pub enum Expr {
     If(Box<Self>, Box<Self>, Option<Box<Self>>),
 
     /// A function, without a name. The type of the function is the type of the expression or whatever `return` returns.
-    Function(Vec<(String, Type)>, Box<Self>, Option<Type>),
+    Function(Vec<(String, TypeStruct)>, Box<Self>, Option<TypeStruct>),
 
     /// Apply a function with arguments.
     Apply(Box<Self>, Vec<Self>),

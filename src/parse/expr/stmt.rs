@@ -1,5 +1,17 @@
 use crate::parse::expr::expr::Expr;
-use crate::parse::expr::types::Type;
+use crate::parse::expr::types::TypeStruct;
+use crate::parse::SourceCodeLocation;
+
+pub struct StmtStruct {
+    loc: SourceCodeLocation,
+    stmt: Stmt,
+}
+
+impl Into<SourceCodeLocation> for StmtStruct {
+    fn into(self) -> SourceCodeLocation {
+        self.loc
+    }
+}
 
 /// All statement types.
 #[derive(Clone, Debug)]
@@ -26,5 +38,5 @@ pub enum Stmt {
     Return(Option<Expr>),
 
     /// An assignment statement.
-    Assignment(bool, String, Expr, Option<Type>),
+    Assignment(bool, String, Expr, Option<TypeStruct>),
 }

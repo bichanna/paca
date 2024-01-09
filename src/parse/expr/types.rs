@@ -1,3 +1,18 @@
+use crate::parse::SourceCodeLocation;
+
+/// This struct is for only for holding `loc`.
+#[derive(Clone, Debug)]
+pub struct TypeStruct {
+    loc: SourceCodeLocation,
+    r#type: Type,
+}
+
+impl Into<SourceCodeLocation> for TypeStruct {
+    fn into(self) -> SourceCodeLocation {
+        self.loc
+    }
+}
+
 /// This enum represents all of the different possible types.
 #[derive(Clone, Copy, Debug)]
 pub enum Type {
