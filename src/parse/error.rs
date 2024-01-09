@@ -22,6 +22,8 @@ pub enum ParseErrorType {
     UnexpectedToken(Vec<&'static str>),
     /// Unexpected end of a block.
     UnexpectedEndOfBlock,
+    /// Custom error message.
+    Custom(String),
 }
 
 /// Struct for lexer errors.
@@ -46,6 +48,7 @@ impl GenerateErrorMessage for ParseError {
             ParseErrorType::UnexpectedEndOfBlock => {
                 msg + "Unexpected end of input while parsing a block"
             }
+            ParseErrorType::Custom(s) => msg + &s,
         }
     }
 }
