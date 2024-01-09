@@ -2,6 +2,7 @@ use crate::util::GenerateErrorMessage;
 
 mod expr;
 mod lexer;
+mod parser;
 
 /// Struct for lexer errors.
 #[derive(Clone, Debug)]
