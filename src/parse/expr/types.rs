@@ -14,7 +14,7 @@ impl Into<SourceCodeLocation> for TypeStruct {
 }
 
 /// This enum represents all of the different possible types.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub enum Type {
     /// `str` type.
     String,
