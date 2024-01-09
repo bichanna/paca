@@ -1,7 +1,8 @@
 use crate::parse::{LexError, LexErrorType, SourceCodeLocation};
 use crate::util::{escape_char, weird_while};
-use log::debug;
+use log::{debug, info};
 use std::iter::Peekable;
+use std::rc::Rc;
 use std::str::Chars;
 
 /// This trait is for lexers that returns a `Vec` of `Clone`-able, `SourceCodeLocation`-convertible tokens.
@@ -179,7 +180,7 @@ impl Into<SourceCodeLocation> for Token {
 /// A struct for holding all the information needed for tokenizing the source code.
 pub struct Lexer<'src> {
     /// The file name of the source code, if there's one.
-    filename: Option<String>,
+    filename: Option<Rc<str>>,
     /// The source code to tokenize.
     source: Peekable<Chars<'src>>,
     /// All the tokens.
@@ -198,7 +199,7 @@ impl<'src> Tokenize for Lexer<'src> {
     type TokenType = Token;
 
     fn tokenize(mut self) -> Result<Vec<Self::TokenType>, LexError> {
-        debug!("Starting tokenizing the source code.");
+        debug!("Starting tokenizing the source code...");
 
         self.next();
         while !self.is_end() {
@@ -464,6 +465,8 @@ impl<'src> Tokenize for Lexer<'src> {
             }
             self.next();
         }
+
+        debug!("Finished tokenizing the source code.");
         Ok(self.tokens)
     }
 }
@@ -471,6 +474,12 @@ impl<'src> Tokenize for Lexer<'src> {
 impl<'src> Lexer<'src> {
     /// Create a new `Lexer` object.
     pub fn new(filename: Option<String>, source: &'src String) -> Self {
+        let filename = if let Some(name) = filename {
+            Some(Rc::from(name))
+        } else {
+            None
+        };
+
         Self {
             filename,
             source: source.chars().peekable(),

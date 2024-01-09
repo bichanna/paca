@@ -1,4 +1,5 @@
 use crate::util::GenerateErrorMessage;
+use std::rc::Rc;
 
 mod lexer;
 
@@ -78,7 +79,7 @@ pub struct SourceCodeLocation {
     pub column: usize,
     pub offset: usize,
     pub length: usize,
-    pub filename: Option<String>,
+    pub filename: Option<Rc<str>>,
 }
 
 impl SourceCodeLocation {
@@ -87,7 +88,7 @@ impl SourceCodeLocation {
         column: usize,
         offset: usize,
         length: usize,
-        filename: Option<String>,
+        filename: Option<Rc<str>>,
     ) -> Self {
         Self {
             line,
@@ -111,7 +112,7 @@ impl SourceCodeLocation {
 
         let loc = format!(
             "{}:{}:{}:{}",
-            filename.unwrap_or("unknown".to_string()),
+            filename.unwrap_or(Rc::from("unknown")).to_string(),
             line,
             column,
             offset
