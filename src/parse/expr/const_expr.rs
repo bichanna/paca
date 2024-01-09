@@ -7,6 +7,6 @@ pub enum ConstExpr {
     Integer(i64),
     Float(f64),
     Boolean(bool),
-    List(Vec<Expr>),
+    Array(Vec<Expr>),
     Tuple(Vec<Expr>),
 }

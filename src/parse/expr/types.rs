@@ -25,7 +25,7 @@ pub enum Type {
     /// `struct` type.
     Struct(String),
 
-    /// `def(...) -> type` type.
+    /// `\(...) -> type` type.
     Func {
         /// Function parameters.
         args: Vec<Type>,
