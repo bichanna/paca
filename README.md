@@ -24,7 +24,7 @@ enum Option<T> {
 ```rust
 import std::collections::Array;
 
-def main() void {
+def main() {
     let names: []str = Array::init<str>("Nobu", "June");
     Array::append(names, "Shivam", "Arya", "Brogan", "Erin");
     let popped: Option<str> = Array::pop(names);
@@ -37,7 +37,7 @@ def main() void {
 ```
 
 ```rust
-def main() void {
+def main() {
     let a: Option<int> = Option::Some(123);
     let b = a->unwrap(); // `b: int = 123`
     
@@ -50,7 +50,7 @@ def main() void {
 import std::fs::read_file;
 import std::io;
 
-def main() void {
+def main() {
     let file_content: Either<str, io::Error> = read_file("./whatever.txt");
     match file_content {
         Either::Left(content) => println(content),
@@ -66,6 +66,8 @@ import std::convert::From;
 import std::collections::tuple::(first, second);
 import std::collections::Array;
 
+export HashMap;
+
 struct Entry<K: Hashable, V> {
     $key: K,
     $val: V,
@@ -77,6 +79,8 @@ struct HashMap<K: Hashable, V> {
 }
 
 impl methods for Entry<K: Hashable, V> {
+    export init;
+    
     def init(key: K, val: V) Self {
         return Self {
             key => key,
@@ -95,6 +99,8 @@ impl From<(K: Hashable, V)> for Entry {
 }
 
 impl methods for HashMap<K: Hashable, V> {
+    export init, length, get, put, keys, vals;
+    
     def init(*init_raw_entries: [](K, V)) Self {
         let entries = Array::map(init_raw_entries) { (raw_entry) = Entry::from(raw) };
         let length = Array::length(entries);
@@ -119,7 +125,7 @@ impl methods for HashMap<K: Hashable, V> {
         return result;
     }
     
-    def put(self, key: K, val: V) void {
+    def put(self, key: K, val: V) {
         let exit = false;
         Array::for_each(self->entries) { (quit, entry) =>
             if entry->key->hash() == key->hash() {
