@@ -30,8 +30,8 @@ pub enum UnaryOp {
 
 #[derive(Clone, Debug)]
 pub struct ExprStruct {
-    loc: SourceCodeLocation,
-    expr: Expr,
+    pub(crate) loc: SourceCodeLocation,
+    pub(crate) expr: Expr,
 }
 
 impl Into<SourceCodeLocation> for ExprStruct {

@@ -1,10 +1,12 @@
 use crate::parse::expr::expr::Expr;
 use crate::parse::expr::types::TypeStruct;
+use crate::parse::expr::ExprStruct;
 use crate::parse::SourceCodeLocation;
 
+#[derive(Clone, Debug)]
 pub struct StmtStruct {
-    loc: SourceCodeLocation,
-    stmt: Stmt,
+    pub(crate) loc: SourceCodeLocation,
+    pub(crate) stmt: Stmt,
 }
 
 impl Into<SourceCodeLocation> for StmtStruct {
@@ -17,7 +19,7 @@ impl Into<SourceCodeLocation> for StmtStruct {
 #[derive(Clone, Debug)]
 pub enum Stmt {
     /// An expression
-    Expr(Expr),
+    Expr(ExprStruct),
 
     /// An if-then-else statement.
     If(Expr, Box<Self>, Box<Self>, Option<Box<Self>>),
