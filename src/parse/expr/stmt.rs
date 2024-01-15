@@ -1,5 +1,4 @@
 use crate::parse::expr::expr::Expr;
-use crate::parse::expr::types::TypeStruct;
 use crate::parse::expr::ExprStruct;
 use crate::parse::SourceCodeLocation;
 
@@ -38,7 +37,4 @@ pub enum Stmt {
 
     /// A return statement.
     Return(Option<Expr>),
-
-    /// An assignment statement.
-    Assignment(bool, String, Expr, Option<TypeStruct>),
 }

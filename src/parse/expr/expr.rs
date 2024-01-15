@@ -68,4 +68,7 @@ pub enum Expr {
 
     /// Index an array or a tuple with an expression that evaluates to an integer at runtime.
     Index(Box<Self>, ConstExpr),
+
+    /// An assignment expression.
+    Assignment(bool, String, Box<Self>, Option<TypeStruct>),
 }
