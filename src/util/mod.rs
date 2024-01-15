@@ -51,7 +51,18 @@ macro_rules! escape_char {
     };
 }
 
-pub(crate) use {escape_char, weird_while};
+/// If the type of the current token's kind is the same kind as the given one, `advance`, otherwise, return an error.
+macro_rules! expect_kind {
+    ($self:expr, $kind:expr, $err:expr) => {
+        if matches!($self.current().kind, $kind) {
+            $self.advance();
+        } else {
+            return Err($err);
+        }
+    };
+}
+
+pub(crate) use {escape_char, expect_kind, weird_while};
 
 /// This trait is for error enums and structs to properly format error messages.
 pub trait GenerateErrorMessage: Clone {
