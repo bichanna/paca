@@ -532,13 +532,13 @@ impl<'src> Lexer<'src> {
 
     /// Generate a `SourceCodeLocation` with the current location information stored in the lexer struct.
     fn generate_loc(&self) -> SourceCodeLocation {
-        SourceCodeLocation {
-            line: self.line,
-            column: self.column,
-            offset: self.offset,
-            length: self.length - 1,
-            filename: self.filename.clone(),
-        }
+        SourceCodeLocation::new(
+            self.line,
+            self.column,
+            self.offset,
+            self.length - 1,
+            self.filename.clone(),
+        )
     }
 }
 
